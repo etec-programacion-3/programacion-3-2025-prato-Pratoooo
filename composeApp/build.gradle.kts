@@ -17,7 +17,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -27,20 +27,26 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     jvm()
-    
+
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
         binaries.executable()
     }
-    
+
     sourceSets {
+        // Android main
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+
+            // Motor de Ktor para Android
+            implementation("io.ktor:ktor-client-okhttp:3.3.0")
         }
+
+        // Código compartido
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -51,14 +57,30 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(projects.shared)
-            
+
+            // Ktor (core + content negotiation + serialization)
+            implementation("io.ktor:ktor-client-core:3.3.0")
+            implementation("io.ktor:ktor-client-content-negotiation:3.3.0")
+            implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.0")
         }
+
+        // Tests compartidos
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+
+        // iOS main (motor darwin)
+        iosMain.dependencies {
+            implementation("io.ktor:ktor-client-darwin:3.3.0")
+        }
+
+        // JVM / Desktop main
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+
+            // Motor Ktor para JVM/Desktop
+            implementation("io.ktor:ktor-client-cio:3.3.0")
         }
     }
 }
